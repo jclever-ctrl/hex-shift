@@ -69,7 +69,7 @@
             color: #ffffff;
             border: none;
             font-family: 'courier new', courier, monospace;
-            padding: 4px 10px;
+            padding: 6px 15px;
             cursor: pointer;
             font-weight: bold;
             margin-left: 10px;
@@ -110,7 +110,7 @@
             margin-bottom: 5px;
         }
 
-        /* Schritte-Steuerung */
+        /* Ausblend-Steuerung (Schritt 0 bleibt standardmäßig sichtbar) */
         #step-passwort, #step-email, #step-nachricht, #step-success, #step-portfolio {
             display: none;
         }
@@ -125,10 +125,10 @@
         </div>
         
         <!-- VISUELLES TERMINAL INTERFACE -->
-        <div id="terminal-screen">
+        <div id="terminal-screen" style="flex: 1; display: flex; flex-direction: column;">
             
             <!-- SCHRITT 0: BRANDING-STARTSEITE -->
-            <form id="step-branding" class="prompt-form-wrapper" onsubmit="event.preventDefault(); startSystem();">
+            <div id="step-branding" style="flex: 1; display: flex; flex-direction: column;">
                 <div class="editor-content-body">
                     <div class="brand-logo">shift</div>
                     <div class="brand-sub">raum // subjekt // dialog</div>
@@ -136,12 +136,12 @@
                 </div>
                 <div class="prompt-form">
                     <span class="prompt-user">system:~$</span>
-                    <button type="submit" id="start-btn" class="next-btn" autofocus>[VERBINDEN]</button>
+                    <button type="button" id="start-btn" class="next-btn" onclick="startSystem()" autofocus>[VERBINDEN]</button>
                 </div>
-            </form>
+            </div>
 
             <!-- SCHRITT 1: PASSWORT -->
-            <div id="step-passwort">
+            <div id="step-passwort" style="flex: 1; display: flex; flex-direction: column;">
                 <div class="editor-content-body">Bitte gib das System-Passwort ein, um fortzufahren.</div>
                 <div class="prompt-form">
                     <span class="prompt-user">passwort:~$</span>
@@ -151,7 +151,7 @@
             </div>
 
             <!-- SCHRITT 2: E-MAIL ALS LOG -->
-            <div id="step-email">
+            <div id="step-email" style="flex: 1; display: flex; flex-direction: column;">
                 <div class="editor-content-body">Zugriff gewährt.<br><br>[System-Log]: Bitte E-Mail-Adresse für die Registrierung des Sitzungs-Protokolls angeben.</div>
                 <div class="prompt-form">
                     <span class="prompt-user">email_log:~$</span>
@@ -161,7 +161,7 @@
             </div>
 
             <!-- SCHRITT 3: NACHRICHT -->
-            <div id="step-nachricht">
+            <div id="step-nachricht" style="flex: 1; display: flex; flex-direction: column;">
                 <div class="editor-content-body">Sitzungs-Log erstellt.<br><br>Du kannst nun unten deine Nachricht eingeben. Drücke auf [SENDEN], um das Terminal zu übertragen.</div>
                 <div class="prompt-form">
                     <span class="prompt-user">nachricht:~$</span>
@@ -171,16 +171,16 @@
             </div>
 
             <!-- SCHRITT 4: ERFOLGSMELDUNG -->
-            <form id="step-success" onsubmit="event.preventDefault(); showPortfolio();">
+            <div id="step-success" style="flex: 1; display: flex; flex-direction: column;">
                 <div class="editor-content-body">--- PROTOKOLL ERFOLGREICH ÜBERMITTELT ---<br><br>Deine Logdaten und die Nachricht wurden fehlerfrei im System verarbeitet.<br><br>Sitzung wird autorisiert...</div>
                 <div class="prompt-form">
                     <span class="prompt-user">system:~$</span>
-                    <button type="submit" id="portfolio-btn" class="next-btn">[PORTFOLIO ÖFFNEN]</button>
+                    <button type="button" id="portfolio-btn" class="next-btn" onclick="showPortfolio()">[PORTFOLIO ÖFFNEN]</button>
                 </div>
-            </form>
+            </div>
 
             <!-- SCHRITT 5: PORTFOLIO -->
-            <div id="step-portfolio">
+            <div id="step-portfolio" style="flex: 1; display: flex; flex-direction: column;">
                 <div class="editor-content-body">
                     <div class="brand-logo" style="font-size: 24px;">shift // portfolio</div>
                     <div style="border-bottom: 1px dashed #000000; margin-bottom: 20px;"></div>
@@ -233,20 +233,8 @@
 
         function startSystem() {
             p0.style.display = "none";
-            p1.style.display = "block";
+            p1.style.display = "flex";
             setTimeout(() => { pwInput.focus(); }, 50);
         }
 
         function checkPassword() {
-            if (pwInput.value.trim() === CONFIG_PASSWORD) {
-                p1.style.display = "none";
-                p2.style.display = "block";
-                setTimeout(() => { emailInput.focus(); }, 50);
-            } else {
-                alert("Falsches Passwort!");
-                pwInput.value = "";
-                pwInput.focus();
-            }
-        }
-
-        function goToMessage() {
