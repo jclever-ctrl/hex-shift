@@ -64,9 +64,20 @@
             padding: 0; 
             margin: 0; 
         }
+        .next-btn {
+            background: #000000;
+            color: #ffffff;
+            border: none;
+            font-family: 'courier new', courier, monospace;
+            padding: 4px 10px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-left: 10px;
+            font-size: 14px;
+        }
 
-        /* --- SEITEN-ZUSTÄNDE --- */
-        #step-email, #step-nachricht, #step-success {
+        /* Verstecke die Folgeschritte standardmäßig */
+        #step-email, #step-nachricht {
             display: none;
         }
     </style>
@@ -79,137 +90,93 @@
             <span>v1.0.0</span>
         </div>
         
-        <!-- VISUELLES TERMINAL INTERFACE -->
-        <div id="terminal-screen">
-            <!-- SCHRITT 1: PASSWORT (Klartext) -->
-            <div id="step-passwort">
-                <div class="editor-content-body">Bitte gib das System-Passwort ein, um fortzufahren.<br>(Passwort: geheim123)</div>
-                <div class="prompt-form">
-                    <span class="prompt-user">passwort:~$</span>
-                    <input type="text" id="pw-input" class="terminal-input" autofocus autocomplete="off">
-                </div>
+        <!-- ================= SCHRITT 1: PASSWORT (Klartext) ================= -->
+        <div id="step-passwort">
+            <div class="editor-content-body">Bitte gib das System-Passwort ein, um fortzufahren.<br>(Passwort: geheim123)</div>
+            <div class="prompt-form">
+                <span class="prompt-user">passwort:~$</span>
+                <!-- Ein normaler Knopfdruck oder Enter ruft die JS-Validierung auf -->
+                <input type="text" id="pw-input" class="terminal-input" autofocus autocomplete="off">
+                <button type="button" class="next-btn" onclick="checkPassword()">[ENTER]</button>
             </div>
+        </div>
 
-            <!-- SCHRITT 2: E-MAIL ALS LOG -->
+        <!-- ================= ECHTES HTML NETLIFY FORMULAR (SCHRITT 2 & 3) ================= -->
+        <!-- Dieses Formular ist von Anfang an voll sichtbar im HTML-Baum, damit Netlify es akzeptiert -->
+        <form name="terminal-contact" method="POST" data-netlify="true" id="netlify-form">
+            
+            <!-- Netlify Bot-Schutz -->
+            <p style="display:none;"><label><input name="bot-field"></label></p>
+
+            <!-- ================= SCHRITT 2: E-MAIL ALS LOG ================= -->
             <div id="step-email">
                 <div class="editor-content-body">Zugriff gewährt.<br><br>[System-Log]: Bitte E-Mail-Adresse für die Registrierung des Sitzungs-Protokolls angeben.</div>
                 <div class="prompt-form">
                     <span class="prompt-user">email_log:~$</span>
-                    <input type="email" id="email-display" class="terminal-input" autocomplete="off">
+                    <!-- Wichtig: Echtes name="" Attribut für Netlify -->
+                    <input type="email" name="email_log" id="email-input" class="terminal-input" autocomplete="off">
+                    <button type="button" class="next-btn" onclick="goToMessage()">[ENTER]</button>
                 </div>
             </div>
 
-            <!-- SCHRITT 3: NACHRICHT -->
+            <!-- ================= SCHRITT 3: NACHRICHT & NATIVER VERSAND ================= -->
             <div id="step-nachricht">
-                <div class="editor-content-body">Sitzungs-Log erstellt.<br><br>Du kannst nun unten deine Nachricht eingeben. Drücke Enter, um das Protokoll zu übertragen.</div>
+                <div class="editor-content-body">Sitzungs-Log erstellt.<br><br>Du kannst nun unten deine Nachricht eingeben. Drücke auf [SENDEN], um das Terminal zu übertragen.</div>
                 <div class="prompt-form">
                     <span class="prompt-user">nachricht:~$</span>
-                    <input type="text" id="msg-display" class="terminal-input" autocomplete="off">
+                    <!-- Wichtig: Echtes name="" Attribut für Netlify -->
+                    <input type="text" name="nachricht_text" id="msg-input" class="terminal-input" autocomplete="off">
+                    <!-- Ein echter submit-Button delegiert den Request fehlerfrei an Netlify -->
+                    <button type="submit" class="next-btn">[SENDEN]</button>
                 </div>
             </div>
 
-            <!-- SCHRITT 4: ERFOLGSMELDUNG -->
-            <div id="step-success">
-                <div class="editor-content-body">--- PROTOKOLL ERFOLGREICH ÜBERMITTELT ---<br><br>Deine Logdaten und die Nachricht wurden fehlerfrei im System verarbeitet.<br><br>Das Terminal wird zurückgesetzt.</div>
-                <div class="prompt-form">
-                    <span class="prompt-user">system:~$</span>
-                    <button onclick="window.location.reload();" style="background:#000;color:#fff;border:none;padding:4px 10px;font-family:monospace;cursor:pointer;">[NEUSTART]</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- REALE HTML FORMULAR-SCHNITTSTELLE FÜR NETLIFY -->
-        <!-- Dieses Formular füllt sich unsichtbar im Hintergrund und sendet Daten konform an den Server -->
-        <form id="netlify-form-wrapper" name="terminal-contact" method="POST" data-netlify="true" style="display: none;">
-            <input type="hidden" name="form-name" value="terminal-contact">
-            <!-- Netlify Spam-Schutz -->
-            <input type="text" name="bot-field" style="display:none;">
-            <!-- Echte Datenfelder -->
-            <input type="email" name="email_log" id="hidden-email">
-            <input type="text" name="nachricht_text" id="hidden-msg">
         </form>
     </div>
 
     <script>
         const CONFIG_PASSWORD = "geheim123";
 
-        // Navigationselemente
         const p1 = document.getElementById('step-passwort');
         const p2 = document.getElementById('step-email');
         const p3 = document.getElementById('step-nachricht');
-        const p4 = document.getElementById('step-success');
 
-        // Inputs
         const pwInput = document.getElementById('pw-input');
-        const emailDisplay = document.getElementById('email-display');
-        const msgDisplay = document.getElementById('msg-display');
+        const emailInput = document.getElementById('email-input');
+        const msgInput = document.getElementById('msg-input');
 
-        // Versteckte Netlify-Formularfelder
-        const hiddenEmail = document.getElementById('hidden-email');
-        const hiddenMsg = document.getElementById('hidden-msg');
-        const netlifyForm = document.getElementById('netlify-form-wrapper');
+        // Funktion: Passwort prüfen
+        function checkPassword() {
+            if (pwInput.value.trim() === CONFIG_PASSWORD) {
+                p1.style.display = "none";
+                p2.style.display = "block";
+                emailInput.focus();
+            } else {
+                alert("Falsches Passwort!");
+                pwInput.value = "";
+                pwInput.focus();
+            }
+        }
 
-        // Schritt 1: Passwort prüfen
+        // Funktion: E-Mail prüfen und weitergehen
+        function goToMessage() {
+            if (emailInput.value.includes('@')) {
+                p2.style.display = "none";
+                p3.style.display = "block";
+                msgInput.focus();
+            } else {
+                alert("Bitte gib eine gültige E-Mail-Adresse ein.");
+                emailInput.focus();
+            }
+        }
+
+        // Unterstütze die "Enter-Taste" in den Feldern für besseres Terminal-Feeling
         pwInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                if (pwInput.value.trim() === CONFIG_PASSWORD) {
-                    p1.style.display = "none";
-                    p2.style.display = "block";
-                    emailDisplay.focus();
-                } else {
-                    alert("Falsches Passwort! Bitte versuche es erneut.");
-                    pwInput.value = "";
-                }
-            }
+            if (e.key === 'Enter') { e.preventDefault(); checkPassword(); }
         });
 
-        // Schritt 2: E-Mail loggen
-        emailDisplay.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                if (emailDisplay.value.includes('@')) {
-                    // Wert in das versteckte Netlify-Formular spiegeln
-                    hiddenEmail.value = emailDisplay.value.trim();
-                    p2.style.display = "none";
-                    p3.style.display = "block";
-                    msgDisplay.focus();
-                } else {
-                    alert("Bitte gib eine gültige E-Mail-Adresse ein.");
-                }
-            }
-        });
-
-        // Schritt 3: Nachricht absenden per standardisiertem AJAX-FormData Objekt
-        msgDisplay.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                const messageText = msgDisplay.value.trim();
-                if (!messageText) return;
-
-                // Wert in das versteckte Netlify-Formular spiegeln
-                hiddenMsg.value = messageText;
-                msgDisplay.disabled = true;
-
-                // FormData zieht die echten, von Netlify erwarteten Felder aus dem Form-Tag heraus
-                const formData = new FormData(netlifyForm);
-
-                fetch('/', {
-                    method: 'POST',
-                    body: new URLSearchParams(formData).toString(),
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-                })
-                .then(response => {
-                    if (response.ok) {
-                        p3.style.display = "none";
-                        p4.style.display = "block";
-                    } else {
-                        alert("Netlify hat die Übertragung abgelehnt (HTTP Fehler).");
-                        msgDisplay.disabled = false;
-                    }
-                })
-                .catch(error => {
-                    alert("Netzwerkfehler. Bitte Verbindung prüfen.");
-                    msgDisplay.disabled = false;
-                });
-            }
+        emailInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') { e.preventDefault(); goToMessage(); }
         });
     </script>
 
