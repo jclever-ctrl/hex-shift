@@ -43,6 +43,7 @@
         }
         .terminal-block {
             margin-bottom: 25px;
+            display: block;
         }
         .prompt-form { 
             display: flex; 
@@ -113,9 +114,9 @@
             margin-bottom: 5px;
         }
 
-        /* Alle folgenden Schritte sind initial unsichtbar */
-        #step-passwort, #step-email, #step-nachricht, #step-success, #step-portfolio {
-            display: none;
+        /* Ausblendung für Folgeschritte per CSS-Klasse geregelt */
+        .hidden-step {
+            display: none !important;
         }
     </style>
 </head>
@@ -142,7 +143,7 @@
             </div>
 
             <!-- SCHRITT 1: PASSWORT -->
-            <div id="step-passwort" class="terminal-block">
+            <div id="step-passwort" class="terminal-block hidden-step">
                 <div style="margin-top: 20px; border-top: 1px dashed #cccccc; padding-top: 20px;"></div>
                 <div>Bitte gib das System-Passwort ein, um fortzufahren.</div>
                 <div class="prompt-form" id="form-passwort">
@@ -153,7 +154,7 @@
             </div>
 
             <!-- SCHRITT 2: E-MAIL ALS LOG -->
-            <div id="step-email" class="terminal-block">
+            <div id="step-email" class="terminal-block hidden-step">
                 <div style="margin-top: 20px; border-top: 1px dashed #cccccc; padding-top: 20px;"></div>
                 <div>Zugriff gewährt.<br><br>[System-Log]: Bitte E-Mail-Adresse für die Registrierung des Sitzungs-Protokolls angeben.</div>
                 <div class="prompt-form" id="form-email">
@@ -164,7 +165,7 @@
             </div>
 
             <!-- SCHRITT 3: NACHRICHT -->
-            <div id="step-nachricht" class="terminal-block">
+            <div id="step-nachricht" class="terminal-block hidden-step">
                 <div style="margin-top: 20px; border-top: 1px dashed #cccccc; padding-top: 20px;"></div>
                 <div>Sitzungs-Log erstellt.<br><br>Du kannst nun unten deine Nachricht eingeben. Drücke auf [SENDEN], um das Terminal zu übertragen.</div>
                 <div class="prompt-form" id="form-nachricht">
@@ -175,7 +176,7 @@
             </div>
 
             <!-- SCHRITT 4: ERFOLGSMELDUNG -->
-            <div id="step-success" class="terminal-block">
+            <div id="step-success" class="terminal-block hidden-step">
                 <div style="margin-top: 20px; border-top: 1px dashed #cccccc; padding-top: 20px;"></div>
                 <div style="color: #00aa00; font-weight: bold;">--- PROTOKOLL ERFOLGREICH ÜBERMITTELT ---</div>
                 <br>
@@ -187,7 +188,7 @@
             </div>
 
             <!-- SCHRITT 5: PORTFOLIO -->
-            <div id="step-portfolio" class="terminal-block">
+            <div id="step-portfolio" class="terminal-block hidden-step">
                 <div style="margin-top: 20px; border-top: 2px solid #000000; padding-top: 20px;"></div>
                 <div class="brand-logo" style="font-size: 24px;">shift // portfolio</div>
                 
@@ -224,20 +225,21 @@
     <script>
         const CONFIG_PASSWORD = "geheim123";
 
-        const scrollArea = document.getElementById('terminal-scroll-area');
+        function scrollToBottom() {
+            const area = document.getElementById('terminal-scroll-area');
+            if(area) area.scrollTop = area.scrollHeight;
+        }
 
-        // Phasen-Blöcke
-        const p1 = document.getElementById('step-passwort');
-        const p2 = document.getElementById('step-email');
-        const p3 = document.getElementById('step-nachricht');
-        const p4 = document.getElementById('step-success');
-        const p5 = document.getElementById('step-portfolio');
+        function startSystem() {
+            document.getElementById('form-branding').style.display = "none";
+            
+            const nextStep = document.getElementById('step-passwort');
+            nextStep.classList.remove('hidden-step');
+            
+            scrollToBottom();
+            setTimeout(() => { document.getElementById('pw-input').focus(); }, 50);
+        }
 
-        // Eingabefelder
-        const pwInput = document.getElementById('pw-input');
-        const emailInput = document.getElementById('email-input');
-        const msgInput = document.getElementById('msg-input');
-
-        // Formular-Zeilen zum Deaktivieren nach der Eingabe
-        const f0 = document.getElementById('form-branding');
-        const f1 = document.getElementById('form-passwort');
+        function checkPassword() {
+            const pwInput = document.getElementById('pw-input');
+            if (pwInput.value.trim() === CONFIG_PASSWORD) {
