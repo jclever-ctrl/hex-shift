@@ -64,40 +64,14 @@
             padding: 0; 
             margin: 0; 
         }
-        .next-btn {
-            background: #000000;
-            color: #ffffff;
-            border: none;
-            font-family: 'courier new', courier, monospace;
-            padding: 4px 10px;
-            cursor: pointer;
-            font-weight: bold;
-            margin-left: 10px;
-            text-decoration: none;
-            font-size: 14px;
-        }
 
-        /* --- SEITENWECHSEL LOGIK VIA CSS --- */
-        .page-toggle {
+        /* --- SEITEN-ZUSTÄNDE (DYNAMIC CONTENT) --- */
+        #step-email, #step-nachricht, #step-success {
             display: none;
         }
-
-        #step-email, #step-nachricht {
-            display: none;
-        }
-
-        /* Umschaltung der CSS-Zustände per Klick auf die Buttons */
-        #toggle-step2:checked ~ .fullscreen-terminal #step-passwort { display: none; }
-        #toggle-step2:checked ~ .fullscreen-terminal #step-email { display: block; }
-
-        #toggle-step3:checked ~ .fullscreen-terminal #step-email { display: none; }
-        #toggle-step3:checked ~ .fullscreen-terminal #step-nachricht { display: block; }
     </style>
 </head>
 <body>
-
-    <input type="checkbox" id="toggle-step2" class="page-toggle">
-    <input type="checkbox" id="toggle-step3" class="page-toggle">
 
     <div class="fullscreen-terminal">
         <div class="editor-bar-top">
@@ -105,45 +79,132 @@
             <span>v1.0.0</span>
         </div>
         
-        <!-- ================= SCHRITT 1: PASSWORT ================= -->
-        <div id="step-passwort">
-            <div class="editor-content-body">Bitte gib das System-Passwort ein, um fortzufahren.<br>(Passwort: geheim123)</div>
-            <div class="prompt-form">
-                <span class="prompt-user">passwort:~$</span>
-                <input type="text" class="terminal-input" autofocus autocomplete="off">
-                <label for="toggle-step2" class="next-btn">[ENTER]</label>
+        <!-- Sichtbarer Inhaltsbereich des Terminals -->
+        <div id="terminal-screen">
+            <!-- SCHRITT 1: PASSWORT (Klartext) -->
+            <div id="step-passwort">
+                <div class="editor-content-body">Bitte gib das System-Passwort ein, um fortzufahren.<br>(Passwort: geheim123)</div>
+                <div class="prompt-form">
+                    <span class="prompt-user">passwort:~$</span>
+                    <input type="text" id="pw-input" class="terminal-input" autofocus autocomplete="off">
+                </div>
             </div>
-        </div>
 
-        <!-- ================= NETLIFY FORMULAR (SCHRITT 2 & 3) ================= -->
-        <!-- Die Action leitet nun nach erfolgreichem Absenden auf eine reale HTML-Datei weiter -->
-        <form name="terminal-log-system" method="POST" data-netlify="true" action="/success.html">
-            
-            <input type="hidden" name="form-name" value="terminal-log-system">
-            <p style="display:none;"><label><input name="bot-field"></label></p>
-
-            <!-- ================= SCHRITT 2: E-MAIL ALS LOG ================= -->
+            <!-- SCHRITT 2: E-MAIL ALS LOG -->
             <div id="step-email">
                 <div class="editor-content-body">Zugriff gewährt.<br><br>[System-Log]: Bitte E-Mail-Adresse für die Registrierung des Sitzungs-Protokolls angeben.</div>
                 <div class="prompt-form">
                     <span class="prompt-user">email_log:~$</span>
-                    <input type="email" name="email_log" class="terminal-input" autocomplete="off" required>
-                    <label for="toggle-step3" class="next-btn">[ENTER]</label>
+                    <input type="email" id="email-input" class="terminal-input" autocomplete="off">
                 </div>
             </div>
 
-            <!-- ================= SCHRITT 3: NACHRICHT ================= -->
+            <!-- SCHRITT 3: NACHRICHT -->
             <div id="step-nachricht">
-                <div class="editor-content-body">Sitzungs-Log erstellt.<br><br>Du kannst nun unten deine Nachricht eingeben. Drücke auf [SENDEN], um das Terminal zu übertragen.</div>
+                <div class="editor-content-body">Sitzungs-Log erstellt.<br><br>Du kannst nun unten deine Nachricht eingeben. Drücke Enter, um das Protokoll zu übertragen.</div>
                 <div class="prompt-form">
                     <span class="prompt-user">nachricht:~$</span>
-                    <input type="text" name="nachricht_text" class="terminal-input" autocomplete="off" required>
-                    <button type="submit" class="next-btn">[SENDEN]</button>
+                    <input type="text" id="msg-input" class="terminal-input" autocomplete="off">
                 </div>
             </div>
-        </form>
 
+            <!-- ERFOLGSMELDUNG (Wird nach dem Senden direkt eingeblendet) -->
+            <div id="step-success">
+                <div class="editor-content-body">--- PROTOKOLL ERFOLGREICH ÜBERMITTELT ---<br><br>Deine Logdaten und die Nachricht wurden fehlerfrei im System verarbeitet.<br><br>Das Terminal wird zurückgesetzt.</div>
+                <div class="prompt-form">
+                    <span class="prompt-user">system:~$</span>
+                    <button onclick="window.location.reload();" style="background:#000;color:#fff;border:none;padding:4px 10px;font-family:monospace;cursor:pointer;">[NEUSTART]</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- UNSICHTBARES NETLIFY FORMULAR -->
+        <!-- Netlify braucht dieses HTML-Gerüst einmalig beim Deployen, um die Schnittstelle im Dashboard zu aktivieren -->
+        <form name="terminal-contact" method="POST" data-netlify="true" style="display: none;">
+            <input type="hidden" name="form-name" value="terminal-contact">
+            <input type="email" name="email_log">
+            <input type="text" name="nachricht_text">
+        </form>
     </div>
+
+    <script>
+        const CONFIG_PASSWORD = "geheim123";
+
+        // DOM-Elemente referenzieren
+        const p1 = document.getElementById('step-passwort');
+        const p2 = document.getElementById('step-email');
+        const p3 = document.getElementById('step-nachricht');
+        const p4 = document.getElementById('step-success');
+
+        const pwInput = document.getElementById('pw-input');
+        const emailInput = document.getElementById('email-input');
+        const msgInput = document.getElementById('msg-input');
+
+        let savedEmail = "";
+
+        // Schritt 1: Passwort prüfen bei Enter
+        pwInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                if (pwInput.value.trim() === CONFIG_PASSWORD) {
+                    p1.style.display = "none";
+                    p2.style.display = "block";
+                    emailInput.focus();
+                } else {
+                    alert("Falsches Passwort! Bitte versuche es erneut.");
+                    pwInput.value = "";
+                }
+            }
+        });
+
+        // Schritt 2: E-Mail loggen bei Enter
+        emailInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                if (emailInput.value.includes('@')) {
+                    savedEmail = emailInput.value.trim();
+                    p2.style.display = "none";
+                    p3.style.display = "block";
+                    msgInput.focus();
+                } else {
+                    alert("Bitte gib eine gültige E-Mail-Adresse ein.");
+                }
+            }
+        });
+
+        // Schritt 3: Nachricht absenden per AJAX (Kein Page-Reload, kein 404!)
+        msgInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const messageText = msgInput.value.trim();
+                if (!messageText) return;
+
+                // Terminal visuell sperren während der Übertragung
+                msgInput.disabled = true;
+
+                // Datenübertragung an die Netlify-Schnittstelle im Hintergrund emulieren
+                fetch('/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({
+                        'form-name': 'terminal-contact',
+                        'email_log': savedEmail,
+                        'nachricht_text': messageText
+                    }).toString()
+                })
+                .then(response => {
+                    if (response.ok) {
+                        p3.style.display = "none";
+                        p4.style.display = "block";
+                    } else {
+                        alert("Systemfehler beim Senden an Netlify.");
+                        msgInput.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    alert("Netzwerkfehler. Bitte Verbindung prüfen.");
+                    msgInput.disabled = false;
+                });
+            }
+        });
+    </script>
 
 </body>
 </html>
