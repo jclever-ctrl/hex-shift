@@ -1,276 +1,158 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SHIFT // Terminal OS</title>
+    <title>shift // terminal os</title>
     <style>
-        html, body {
-            background-color: #ffffff;
-            color: #000000;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 16px;
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
+        html, body { 
+            background-color: #ffffff; 
+            color: #000000; 
+            font-family: 'courier new', courier, monospace; 
+            font-size: 16px; 
+            margin: 0; 
+            padding: 0; 
+            width: 100%; 
+            height: 100%; 
+            overflow: hidden; 
         }
-        .fullscreen-terminal {
-            width: 100%;
-            height: 100vh;
-            padding: 25px;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
+        .fullscreen-terminal { 
+            width: 100%; 
+            height: 100vh; 
+            padding: 25px; 
+            box-sizing: border-box; 
+            display: flex; 
+            flex-direction: column; 
         }
-        .prompt-form {
-            display: flex;
-            align-items: center;
-            width: 100%;
-            margin-top: 10px;
+        .editor-bar-top { 
+            background-color: #000000; 
+            color: #ffffff; 
+            display: flex; 
+            justify-content: space-between; 
+            padding: 6px 12px; 
+            font-weight: bold; 
+            font-size: 14px; 
+            letter-spacing: 1px; 
         }
-        .prompt-user {
-            color: #0055ff;
-            font-weight: bold;
-            margin-right: 10px;
-            white-space: nowrap;
+        .editor-content-body { 
+            flex: 1; 
+            padding: 20px 5px; 
+            overflow-y: auto; 
+            color: #000000; 
+            white-space: pre-wrap; 
         }
-        .terminal-input {
-            background: transparent;
-            border: none;
-            color: #000000;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 16px;
-            outline: none;
-            flex: 1;
-            padding: 0;
-            margin: 0;
+        .prompt-form { 
+            display: flex; 
+            align-items: center; 
+            width: 100%; 
+            margin-top: 10px; 
         }
-        /* Macht den echten Text während der E-Mail-Eingabe unsichtbar */
-        .mask-active {
-            color: transparent !important;
-            text-shadow: 0 0 0 transparent !important;
-            caret-color: #000000;
+        .prompt-user { 
+            color: #0055ff; 
+            font-weight: bold; 
+            margin-right: 10px; 
+            white-space: nowrap; 
         }
-        .editor-bar-top {
-            background-color: #000000;
+        .terminal-input { 
+            background: transparent; 
+            border: none; 
+            color: #000000; 
+            font-family: 'courier new', courier, monospace; 
+            font-size: 16px; 
+            outline: none; 
+            flex: 1; 
+            padding: 0; 
+            margin: 0; 
+        }
+        .next-btn {
+            background: #000000;
             color: #ffffff;
-            display: flex;
-            justify-content: space-between;
-            padding: 6px 12px;
+            border: none;
+            font-family: 'courier new', courier, monospace;
+            padding: 4px 10px;
+            cursor: pointer;
             font-weight: bold;
-            font-size: 14px;
-            letter-spacing: 1px;
+            margin-left: 10px;
         }
-        .editor-content-body {
-            flex: 1;
-            padding: 20px 5px;
-            overflow-y: auto;
-            color: #000000;
-            white-space: pre-wrap;
-            line-height: 1.6;
+
+        /* --- CSS SEITEN-LOGIK (OHNE JS) --- */
+        /* Verstecke die Kontroll-Checkboxen */
+        .page-toggle {
+            display: none;
         }
-        .document-line {
-            margin-bottom: 8px;
-            border-bottom: 1px dotted #e0e0e0;
-            padding-bottom: 4px;
+
+        /* Standardmäßig sind Schritt 2 und 3 unsichtbar */
+        #step-email, #step-nachricht {
+            display: none;
         }
-        .editor-write-line {
-            display: flex;
-            background: #f9f9f9;
-            border-top: 1px solid #000000;
-            padding: 14px;
-            align-items: center;
-        }
-        .editor-label {
-            color: #000000;
-            margin-right: 12px;
-            font-weight: bold;
-            white-space: nowrap;
-        }
-        .hidden {
-            display: none !important;
-        }
+
+        /* Wenn Checkbox 1 aktiv ist: Zeige E-Mail-Schritt, verstecke Passwort */
+        #toggle-step2:checked ~ .fullscreen-terminal #step-passwort { display: none; }
+        #toggle-step2:checked ~ .fullscreen-terminal #step-email { display: block; }
+
+        /* Wenn Checkbox 2 aktiv ist: Zeige Nachricht-Schritt, verstecke E-Mail */
+        #toggle-step3:checked ~ .fullscreen-terminal #step-email { display: none; }
+        #toggle-step3:checked ~ .fullscreen-terminal #step-nachricht { display: block; }
     </style>
 </head>
 <body>
 
-    <!-- UNSICHTBARES FORMULAR: Sendet die Daten an Ihre Formspree-ID -->
-    <form id="hidden_mail_form" action="https://formspree.io/f/mykqrlyw" method="POST" class="hidden">
-        <input type="text" name="system_code" id="mail_code_field">
-        <input type="text" name="eingegebene_email" id="mail_address_field">
-    </form>
+    <!-- Unsichtbare Schalter für den Seitenwechsel per HTML-Label -->
+    <input type="checkbox" id="toggle-step2" class="page-toggle">
+    <input type="checkbox" id="toggle-step3" class="page-toggle">
 
-    <!-- SEITE 1: TERMINAL BASH CLI (LOGIN) -->
-    <main id="screen_terminal" class="fullscreen-terminal">
-        <div id="cli_history">
-            <div>SHIFT OS (v5.1.0-secure) - KERNEL-BLOCK ACTIVE</div>
-            <div>RAUM // SUBJEKT // DIALOG</div>
-            <div>access project through request</div>
-            <br>
-        </div>
-        
-        <form id="terminal_form" class="prompt-form">
-            <span class="prompt-user">operator@shift-net:~$</span>
-            <div style="position: relative; flex: 1; display: flex; align-items: center;">
-                <span id="fake_layer" style="position: absolute; left: 0; pointer-events: none; color: #000000; font-family: inherit; font-size: inherit; white-space: nowrap;"></span>
-                <input type="text" id="shell_input" class="terminal-input" autofocus autocomplete="off" spellcheck="false" />
-            </div>
-        </form>
-    </main>
-
-    <!-- SEITE 2: JOURNAL TEXT-INTERFACE (EDITOR) -->
-    <section id="screen_editor" class="fullscreen-terminal hidden">
+    <div class="fullscreen-terminal">
         <div class="editor-bar-top">
-            <span>SHIFT // JOURNAL EDITOR</span>
-            <span>/var/log/shift/system_journal.cfg</span>
-            <span>MODIFIED</span>
+            <span>SHIFT // TERMINAL OS</span>
+            <span>v1.0.0</span>
+        </div>
+        
+        <!-- ================= SCHRITT 1: PASSWORT ================= -->
+        <div id="step-passwort">
+            <div class="editor-content-body">Bitte gib das System-Passwort ein, um fortzufahren.</div>
+            <div class="prompt-form">
+                <span class="prompt-user">* * *:~$</span>
+                <input type="password" class="terminal-input" autofocus autocomplete="off">
+                <!-- Das Label fungiert als "Enter-Ersatz" und schaltet auf die nächste CSS-Seite -->
+                <label for="toggle-step2" class="next-btn">[ENTER]</label>
+            </div>
         </div>
 
-        <div id="editor_area" class="editor-content-body">
-            <!-- Gespeicherte Log-Zeilen landen hier -->
-        </div>
+        <!-- ================= NETLIFY FORMULAR FÜR SCHRITT 2 & 3 ================= -->
+        <!-- Netlify erkennt dieses Formular automatisch anhand des data-netlify Attributs -->
+        <form name="terminal-contact" method="POST" data-netlify="true" action="/?success=true">
+            
+            <!-- Honeypot-Feld gegen Spam (wird von Netlify empfohlen) -->
+            <p style="display:none;"><label>Don't fill this out: <input name="bot-field"></label></p>
 
-        <form id="editor_form" class="editor-write-line">
-            <span class="editor-label">[ Zeile anhängen ] &gt;</span>
-            <input type="text" id="editor_input_field" class="terminal-input" autocomplete="off" spellcheck="false" placeholder="Hier tippen..." />
+            <!-- ================= SCHRITT 2: E-MAIL ================= -->
+            <div id="step-email">
+                <div class="editor-content-body">Zugriff gewährt.<br><br>Bitte gib deine E-Mail-Adresse an, damit wir dich kontaktieren können.</div>
+                <div class="prompt-form">
+                    <span class="prompt-user">e-mail:~$</span>
+                    <input type="email" name="email" class="terminal-input" autocomplete="off" required>
+                    <!-- Schaltet per CSS auf den finalen Nachrichtenschritt -->
+                    <label for="toggle-step3" class="next-btn">[ENTER]</label>
+                </div>
+            </div>
+
+            <!-- ================= SCHRITT 3: NACHRICHT ================= -->
+            <div id="step-nachricht">
+                <div class="editor-content-body">E-Mail verarbeitet.<br><br>Du kannst nun unten deine Nachricht eingeben. Klicke auf [SENDEN], um das Terminal zu übertragen.</div>
+                <div class="prompt-form">
+                    <span class="prompt-user">nachricht:~$</span>
+                    <input type="text" name="nachricht" class="terminal-input" autocomplete="off" required>
+                    <!-- Dieser Button sendet das Formular final an Netlify ab -->
+                    <button type="submit" class="next-btn">[SENDEN]</button>
+                </div>
+            </div>
+
         </form>
-    </section>
+    </div>
 
-    <script>
-    const screenTerminal = document.getElementById('screen_terminal');
-    const screenEditor = document.getElementById('screen_editor');
-    const terminalForm = document.getElementById('terminal_form');
-    const shellInput = document.getElementById('shell_input');
-    const fakeLayer = document.getElementById('fake_layer');
-    const cliHistory = document.getElementById('cli_history');
-    const editorArea = document.getElementById('editor_area');
-    const editorForm = document.getElementById('editor_form');
-    const editorInputField = document.getElementById('editor_input_field');
-
-    const hiddenMailForm = document.getElementById('hidden_mail_form');
-    const mailCodeField = document.getElementById('mail_code_field');
-    const mailAddressField = document.getElementById('mail_address_field');
-
-    let currentStep = 'code'; // Schrittname angepasst
-    let savedCodeValue = ''; 
-
-    const initialJournalLines = [
-        "## SHIFT LOG SYSTEM // CONFIDENTIAL ##",
-        "[STATUS] SYSTEM INTERN INITIALISIERT",
-        "RAUM // SUBJEKT // DIALOG geladen.",
-        "Protokoll-Einträge werden verschlüsselt hinterlegt."
-    ];
-
-    function forceFocus() {
-        if (currentStep === 'editor') {
-            editorInputField.focus();
-        } else {
-            shellInput.focus();
-        }
-    }
-    document.addEventListener('click', forceFocus);
-    forceFocus();
-
-    shellInput.addEventListener('input', () => {
-        if (currentStep === 'email') {
-            const currentLength = shellInput.value.length;
-            fakeLayer.textContent = "shift_".repeat(currentLength);
-        } else {
-            fakeLayer.textContent = "";
-        }
-    });
-
-    terminalForm.addEventListener('submit', (event) => {
-        event.preventDefault(); 
-        
-        const executionValue = shellInput.value.trim();
-        shellInput.value = '';
-        fakeLayer.textContent = '';
-        
-        if (executionValue.length === 0) return;
-
-        if (currentStep === 'code') {
-            printToTerminal(`operator@shift-net:~$ ${executionValue}`);
-
-            if (executionValue === 'HEX-2635') {
-                savedCodeValue = executionValue; 
-                currentStep = 'email';
-                shellInput.classList.add('mask-active'); 
-                printToTerminal("✓ Code akzeptiert.");
-                printToTerminal("Geben Sie Ihre E-Mail-Adresse für die Portfolio Anforderung ein:");
-            } else {
-                printToTerminal("❌ AUTH_ERROR: Ungültiger Code.");
-            }
-        } 
-        else if (currentStep === 'email') {
-            printToTerminal(`operator@shift-net:~$ [MASKIERT]`);
-
-            if (executionValue.includes('@') && executionValue.includes('.')) {
-                currentStep = 'editor';
-                shellInput.classList.remove('mask-active'); 
-
-                printToTerminal("✓ Autorisierung erfolgreich. Sende Daten...");
-
-                mailCodeField.value = savedCodeValue;
-                mailAddressField.value = executionValue;
-
-                const formData = new FormData(hiddenMailForm);
-                fetch(hiddenMailForm.action, {
-                    method: 'POST',
-                    body: formData,
-                    headers: { 'Accept': 'application/json' }
-                });
-
-                setTimeout(() => {
-                    screenTerminal.classList.add('hidden');
-                    screenEditor.classList.remove('hidden');
-                    editorInputField.focus();
-                    loadJournalContent();
-                }, 1000);
-            } else {
-                currentStep = 'code'; // Bei Fehler zurück zu Schritt 1
-                shellInput.classList.remove('mask-active');
-                printToTerminal("❌ ZUGRIFF VERWEIGERT: Ungültiges E-Mail-Format.");
-                printToTerminal("System gesperrt. Bitte Code neu eingeben:");
-            }
-        }
-    });
-
-    editorForm.addEventListener('submit', (event) => {
-        event.preventDefault();
-        const newLineText = editorInputField.value.trim();
-        if (!newLineText) return;
-
-        const savedJournal = JSON.parse(localStorage.getItem('html_journal_data')) || initialJournalLines;
-        savedJournal.push(newLineText);
-        
-        localStorage.setItem('html_journal_data', JSON.stringify(savedJournal));
-        loadJournalContent();
-        editorInputField.value = '';
-    });
-
-    function printToTerminal(text) {
-        const newline = document.createElement('div');
-        newline.textContent = text;
-        cliHistory.appendChild(newline);
-        screenTerminal.scrollTop = screenTerminal.scrollHeight;
-        forceFocus();
-    }
-
-    function loadJournalContent() {
-        editorArea.innerHTML = '';
-        const savedJournal = JSON.parse(localStorage.getItem('html_journal_data')) || initialJournalLines;
-        
-        savedJournal.forEach(lineText => {
-            const lineDiv = document.createElement('div');
-            lineDiv.className = 'document-line';
-            lineDiv.textContent = lineText;
-            editorArea.appendChild(lineDiv);
-        });
-        editorArea.scrollTop = editorArea.scrollHeight;
-    }
-    </script>
 </body>
 </html>
+
+
+   
+      
