@@ -75,8 +75,9 @@
             margin-left: 10px;
             font-size: 14px;
         }
-        .next-btn:hover {
+        .next-btn:hover, .next-btn:focus {
             background: #0055ff;
+            outline: none;
         }
 
         /* Branding-Stile für das Logo */
@@ -126,8 +127,8 @@
         <!-- VISUELLES TERMINAL INTERFACE -->
         <div id="terminal-screen">
             
-            <!-- SCHRITT 0: BRANDING-STARTSEITE (Visitenkarten-Vorderseite) -->
-            <div id="step-branding">
+            <!-- SCHRITT 0: BRANDING-STARTSEITE -->
+            <form id="step-branding" class="prompt-form-wrapper" onsubmit="event.preventDefault(); startSystem();">
                 <div class="editor-content-body">
                     <div class="brand-logo">shift</div>
                     <div class="brand-sub">raum // subjekt // dialog</div>
@@ -135,9 +136,9 @@
                 </div>
                 <div class="prompt-form">
                     <span class="prompt-user">system:~$</span>
-                    <button type="button" class="next-btn" onclick="startSystem()">[VERBINDEN]</button>
+                    <button type="submit" id="start-btn" class="next-btn" autofocus>[VERBINDEN]</button>
                 </div>
-            </div>
+            </form>
 
             <!-- SCHRITT 1: PASSWORT -->
             <div id="step-passwort">
@@ -169,35 +170,30 @@
                 </div>
             </div>
 
-            <!-- SCHRITT 4: ERFOLGSMELDUNG (Zwischenschritt) -->
-            <div id="step-success">
+            <!-- SCHRITT 4: ERFOLGSMELDUNG -->
+            <form id="step-success" onsubmit="event.preventDefault(); showPortfolio();">
                 <div class="editor-content-body">--- PROTOKOLL ERFOLGREICH ÜBERMITTELT ---<br><br>Deine Logdaten und die Nachricht wurden fehlerfrei im System verarbeitet.<br><br>Sitzung wird autorisiert...</div>
                 <div class="prompt-form">
                     <span class="prompt-user">system:~$</span>
-                    <button type="button" class="next-btn" onclick="showPortfolio()">[PORTFOLIO ÖFFNEN]</button>
+                    <button type="submit" id="portfolio-btn" class="next-btn">[PORTFOLIO ÖFFNEN]</button>
                 </div>
-            </div>
+            </form>
 
-            <!-- SCHRITT 5: PORTFOLIO (Wird nach Absenden sichtbar) -->
+            <!-- SCHRITT 5: PORTFOLIO -->
             <div id="step-portfolio">
                 <div class="editor-content-body">
                     <div class="brand-logo" style="font-size: 24px;">shift // portfolio</div>
                     <div style="border-bottom: 1px dashed #000000; margin-bottom: 20px;"></div>
                     
                     <div class="portfolio-container">
-                        <!-- Projekt 1 -->
                         <div class="portfolio-item">
                             <div class="portfolio-title">Projekt_01: Virtuelle Räume</div>
                             <div>Eine Untersuchung von digitalen Dialogplattformen und deren subjektiver Wahrnehmung.</div>
                         </div>
-
-                        <!-- Projekt 2 -->
                         <div class="portfolio-item">
                             <div class="portfolio-title">Projekt_02: Subjektstudien</div>
                             <div>Interaktive Installationen, die den Betrachter direkt in das Kunstwerk einbinden.</div>
                         </div>
-
-                        <!-- Projekt 3 -->
                         <div class="portfolio-item">
                             <div class="portfolio-title">Projekt_03: Dialoge des Schweigens</div>
                             <div>Konzeptionelle Arbeiten über Kommunikation im analogen und digitalen Zeitalter.</div>
@@ -233,18 +229,19 @@
         const pwInput = document.getElementById('pw-input');
         const emailInput = document.getElementById('email-input');
         const msgInput = document.getElementById('msg-input');
+        const portfolioBtn = document.getElementById('portfolio-btn');
 
         function startSystem() {
             p0.style.display = "none";
             p1.style.display = "block";
-            pwInput.focus();
+            setTimeout(() => { pwInput.focus(); }, 50);
         }
 
         function checkPassword() {
             if (pwInput.value.trim() === CONFIG_PASSWORD) {
                 p1.style.display = "none";
                 p2.style.display = "block";
-                emailInput.focus();
+                setTimeout(() => { emailInput.focus(); }, 50);
             } else {
                 alert("Falsches Passwort!");
                 pwInput.value = "";
@@ -253,5 +250,3 @@
         }
 
         function goToMessage() {
-            if (emailInput.value.includes('@')) {
-
