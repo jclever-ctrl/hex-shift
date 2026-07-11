@@ -113,8 +113,8 @@
             <span>v1.0.0</span>
         </div>
         
-        <!-- NATIVES FORMULAR-MANAGEMENT FÜR DIE ENTER-TASTE -->
-        <form class="editor-content-body" id="terminal-scroll-area" onsubmit="handleTerminalSubmit(event);">
+        <!-- DIREKTE SCROLLFLÄCHE OHNE BLOCKIERENDE FORM-TAGS -->
+        <div class="editor-content-body" id="terminal-scroll-area">
             
             <!-- SCHRITT 1: BRANDING & PASSWORT-ABFRAGE -->
             <div id="step-passwort" class="terminal-block">
@@ -123,7 +123,7 @@
                 <div>Bitte gib das System-Passwort ein und drücke [ENTER].</div>
                 <div class="prompt-form" id="form-passwort">
                     <span class="prompt-user">passwort:~$</span>
-                    <input type="text" id="pw-input" class="terminal-input" autofocus autocomplete="off" placeholder="Passwort...">
+                    <input type="text" id="pw-input" class="terminal-input" autofocus autocomplete="off" placeholder="Passwort..." onkeyup="processPassword(event)">
                 </div>
             </div>
 
@@ -133,7 +133,7 @@
                 <div>Zugriff gewährt.<br><br>[System-Log]: Bitte E-Mail-Adresse für die Registrierung des Sitzungs-Protokolls angeben und [ENTER] drücken.</div>
                 <div class="prompt-form" id="form-email">
                     <span class="prompt-user">email_log:~$</span>
-                    <input type="email" id="email-input" class="terminal-input" autocomplete="off" placeholder="E-Mail-Adresse...">
+                    <input type="email" id="email-input" class="terminal-input" autocomplete="off" placeholder="E-Mail-Adresse..." onkeyup="processEmail(event)">
                 </div>
             </div>
 
@@ -143,7 +143,7 @@
                 <div>Sitzungs-Log erstellt.<br><br>Du kannst nun unten deine Nachricht eingeben. Drücke [ENTER], um das Terminal zu übertragen.</div>
                 <div class="prompt-form" id="form-nachricht">
                     <span class="prompt-user">nachricht:~$</span>
-                    <input type="text" id="msg-input" class="terminal-input" autocomplete="off" placeholder="Deine Nachricht...">
+                    <input type="text" id="msg-input" class="terminal-input" autocomplete="off" placeholder="Deine Nachricht..." onkeyup="processMessage(event)">
                 </div>
             </div>
 
@@ -164,22 +164,18 @@
                     </div>
                     <div class="portfolio-item">
                         <div class="portfolio-title">Projekt_02: Subjektstudien</div>
-                    <div>Interaktive Installationen, die den Betrachter direkt in das Kunstwerk einbinden.</div>
+                        <div>Interaktive Installationen, die den Betrachter direkt in das Kunstwerk einbinden.</div>
                     </div>
                     <div class="portfolio-item">
                         <div class="portfolio-title">Projekt_03: Dialoge des Schweigens</div>
                         <div>Konzeptionelle Arbeiten über Kommunikation im analogen und digitalen Zeitalter.</div>
                     </div>
                 </div>
-                
-                <div style="margin-top: 20px; color: #555555; font-size: 14px;">Drücke [ENTER] für einen Neustart des Systems.</div>
             </div>
 
-            <!-- UNSICHTBARER SUBMIT-TRIGGER FÜR DEN BROWSER -->
-            <button type="submit" style="display: none;"></button>
-        </form>
+        </div>
 
-        <!-- REALE NETLIFY-SCHNITTSTELLE -->
+        <!-- STILLE HINTERGRUND-NETLIFY-SCHNITTSTELLE -->
         <form name="terminal-contact" data-netlify="true" style="display: none;">
             <input type="hidden" name="form-name" value="terminal-contact">
             <input type="email" name="email_log">
@@ -188,55 +184,72 @@
     </div>
 
     <script>
+        // Dein System-Passwort
         const CONFIG_PASSWORD = "geheim123";
-        let currentStep = 1; // 1 = Passwort, 2 = E-Mail, 3 = Nachricht, 4 = Portfolio/Reset
 
         function scrollToBottom() {
             var area = document.getElementById('terminal-scroll-area');
             if (area) area.scrollTop = area.scrollHeight;
         }
 
-        function handleTerminalSubmit(event) {
-            event.preventDefault(); // Verhindert das Neuladen der Seite bei Enter
-
-            if (currentStep === 1) {
-                var pwInput = document.getElementById('pw-input');
-                if (pwInput && pwInput.value.trim() === CONFIG_PASSWORD) {
-                    document.getElementById('form-passwort').style.display = "none";
-                    document.getElementById('step-email').classList.remove('hidden-step');
-                    currentStep = 2;
-                    scrollToBottom();
-                    setTimeout(function() { document.getElementById('email-input').focus(); }, 50);
-                } else {
-                    alert("Falsches Passwort!");
-                    if(pwInput) {
-                        pwInput.value = "";
-                        pwInput.focus();
-                    }
-                }
-            } 
+        // 1. Passworteingabe verarbeiten
+        function processPassword(event) {
+            if (event.key !== 'Enter') return;
             
-            else if (currentStep === 2) {
-                var emailInput = document.getElementById('email-input');
-                if (emailInput && emailInput.value.includes('@')) {
-                    document.getElementById('form-email').style.display = "none";
-                    document.getElementById('step-nachricht').classList.remove('hidden-step');
-                    currentStep = 3;
-                    scrollToBottom();
-                    setTimeout(function() { document.getElementById('msg-input').focus(); }, 50);
-                } else {
-                    alert("Bitte gib eine gültige E-Mail-Adresse ein.");
-                    if(emailInput) emailInput.focus();
-                }
-            } 
-            
-            else if (currentStep === 3) {
-                var msgInput = document.getElementById('msg-input');
-                var emailInput = document.getElementById('email-input');
-                if (!msgInput || !emailInput || !msgInput.value.trim()) return;
+            var pwInput = document.getElementById('pw-input');
+            if (!pwInput) return;
 
-                document.getElementById('form-nachricht').style.display = "none";
-                msgInput.disabled = true;
+            if (pwInput.value.trim() === CONFIG_PASSWORD) {
+                document.getElementById('form-passwort').style.display = "none";
+                document.getElementById('step-email').classList.remove('hidden-step');
+                scrollToBottom();
+                setTimeout(function() { 
+                    var nextEl = document.getElementById('email-input');
+                    if (nextEl) nextEl.focus(); 
+                }, 50);
+            } else {
+                alert("Falsches Passwort!");
+                pwInput.value = "";
+                pwInput.focus();
+            }
+        }
 
-                var params = new URLSearchParams();
-                params.append("form-name", "terminal-contact");
+        // 2. E-Mail-Eingabe verarbeiten
+        function processEmail(event) {
+            if (event.key !== 'Enter') return;
+
+            var emailInput = document.getElementById('email-input');
+            if (!emailInput) return;
+
+            if (emailInput.value.includes('@')) {
+                document.getElementById('form-email').style.display = "none";
+                document.getElementById('step-nachricht').classList.remove('hidden-step');
+                scrollToBottom();
+                setTimeout(function() { 
+                    var nextEl = document.getElementById('msg-input');
+                    if (nextEl) nextEl.focus(); 
+                }, 50);
+            } else {
+                alert("Bitte gib eine gültige E-Mail-Adresse ein.");
+                emailInput.focus();
+            }
+        }
+
+        // 3. Nachricht verarbeiten & im Hintergrund absenden
+        function processMessage(event) {
+            if (event.key !== 'Enter') return;
+
+            var msgInput = document.getElementById('msg-input');
+            var emailInput = document.getElementById('email-input');
+            if (!msgInput || !emailInput) return;
+
+            var messageText = msgInput.value.trim();
+            if (!messageText) return;
+
+            // Eingabezeile sofort einfrieren
+            document.getElementById('form-nachricht').style.display = "none";
+            msgInput.disabled = true;
+
+            // Parameter für Netlify im Hintergrund vorbereiten
+            var params = new URLSearchParams();
+            params.append("form-name", "terminal-contact");
