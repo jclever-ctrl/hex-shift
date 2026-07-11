@@ -82,7 +82,7 @@
             display: none;
         }
 
-        #step-email, #step-nachricht, #step-success {
+        #step-email, #step-nachricht {
             display: none;
         }
 
@@ -92,23 +92,12 @@
 
         #toggle-step3:checked ~ .fullscreen-terminal #step-email { display: none; }
         #toggle-step3:checked ~ .fullscreen-terminal #step-nachricht { display: block; }
-
-        #toggle-success:checked ~ .fullscreen-terminal #step-passwort { display: none; }
-        #toggle-success:checked ~ .fullscreen-terminal #step-success { display: block; }
     </style>
 </head>
 <body>
 
     <input type="checkbox" id="toggle-step2" class="page-toggle">
     <input type="checkbox" id="toggle-step3" class="page-toggle">
-    <input type="radio" id="toggle-success" class="page-toggle">
-
-    <script>
-        // Verhindert den Netlify 404 Fehler: Liest den Parameter fehlerfrei aus
-        if (window.location.search.includes('success=true')) {
-            document.getElementById('toggle-success').checked = true;
-        }
-    </script>
 
     <div class="fullscreen-terminal">
         <div class="editor-bar-top">
@@ -127,8 +116,8 @@
         </div>
 
         <!-- ================= NETLIFY FORMULAR (SCHRITT 2 & 3) ================= -->
-        <!-- ACTION zeigt auf "/" mit Parameter, was Netlify Forms fehlerfrei akzeptiert -->
-        <form name="terminal-log-system" method="POST" data-netlify="true" action="/?success=true">
+        <!-- Die Action leitet nun nach erfolgreichem Absenden auf eine reale HTML-Datei weiter -->
+        <form name="terminal-log-system" method="POST" data-netlify="true" action="/success.html">
             
             <input type="hidden" name="form-name" value="terminal-log-system">
             <p style="display:none;"><label><input name="bot-field"></label></p>
@@ -153,15 +142,6 @@
                 </div>
             </div>
         </form>
-
-        <!-- ================= ERFOLGSMELDUNG ================= -->
-        <div id="step-success">
-            <div class="editor-content-body">--- PROTOKOLL ERFOLGREICH ÜBERMITTELT ---<br><br>Deine Logdaten und die Nachricht wurden fehlerfrei verarbeitet.<br><br>Das Terminal wird zurückgesetzt.</div>
-            <div class="prompt-form">
-                <span class="prompt-user">system:~$</span>
-                <a href="/" class="next-btn">[NEUSTART]</a>
-            </div>
-        </div>
 
     </div>
 
