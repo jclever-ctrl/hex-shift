@@ -148,7 +148,7 @@
                 <div>Bitte gib das System-Passwort ein, um fortzufahren.</div>
                 <div class="prompt-form" id="form-passwort">
                     <span class="prompt-user">passwort:~$</span>
-                    <input type="password" id="pw-input" class="terminal-input" autocomplete="off" placeholder="Passwort eingeben...">
+                    <input type="password" id="pw-input" class="terminal-input" autocomplete="off" placeholder="Passwort eingeben..." onkeypress="if(event.key === 'Enter') { event.preventDefault(); checkPassword(); }">
                     <button type="button" class="next-btn" onclick="checkPassword()">[ENTER]</button>
                 </div>
             </div>
@@ -159,7 +159,7 @@
                 <div>Zugriff gewährt.<br><br>[System-Log]: Bitte E-Mail-Adresse für die Registrierung des Sitzungs-Protokolls angeben.</div>
                 <div class="prompt-form" id="form-email">
                     <span class="prompt-user">email_log:~$</span>
-                    <input type="email" id="email-input" class="terminal-input" autocomplete="off" placeholder="E-Mail-Adresse...">
+                    <input type="email" id="email-input" class="terminal-input" autocomplete="off" placeholder="E-Mail-Adresse..." onkeypress="if(event.key === 'Enter') { event.preventDefault(); goToMessage(); }">
                     <button type="button" class="next-btn" onclick="goToMessage()">[ENTER]</button>
                 </div>
             </div>
@@ -170,7 +170,7 @@
                 <div>Sitzungs-Log erstellt.<br><br>Du kannst nun unten deine Nachricht eingeben. Drücke auf [SENDEN], um das Terminal zu übertragen.</div>
                 <div class="prompt-form" id="form-nachricht">
                     <span class="prompt-user">nachricht:~$</span>
-                    <input type="text" id="msg-input" class="terminal-input" autocomplete="off" placeholder="Deine Nachricht...">
+                    <input type="text" id="msg-input" class="terminal-input" autocomplete="off" placeholder="Deine Nachricht..." onkeypress="if(event.key === 'Enter') { event.preventDefault(); submitToNetlify(); }">
                     <button type="button" class="next-btn" onclick="submitToNetlify()">[SENDEN]</button>
                 </div>
             </div>
@@ -223,23 +223,18 @@
     </div>
 
     <script>
+        // Standardpasswort für die Abfrage
         const CONFIG_PASSWORD = "geheim123";
 
         function scrollToBottom() {
             const area = document.getElementById('terminal-scroll-area');
-            if(area) area.scrollTop = area.scrollHeight;
+            if (area) {
+                area.scrollTop = area.scrollHeight;
+            }
         }
 
         function startSystem() {
             document.getElementById('form-branding').style.display = "none";
-            
-            const nextStep = document.getElementById('step-passwort');
-            nextStep.classList.remove('hidden-step');
-            
+            document.getElementById('step-passwort').classList.remove('hidden-step');
             scrollToBottom();
-            setTimeout(() => { document.getElementById('pw-input').focus(); }, 50);
-        }
-
-        function checkPassword() {
-            const pwInput = document.getElementById('pw-input');
-            if (pwInput.value.trim() === CONFIG_PASSWORD) {
+            setTimeout(function() { 
