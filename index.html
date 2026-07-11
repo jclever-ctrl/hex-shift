@@ -68,24 +68,8 @@
             padding: 0; 
             margin: 0; 
         }
-        .next-btn {
-            background: #000000;
-            color: #ffffff;
-            border: none;
-            font-family: 'courier new', courier, monospace;
-            padding: 8px 18px;
-            cursor: pointer;
-            font-weight: bold;
-            margin-left: 10px;
-            font-size: 14px;
-            display: inline-block;
-        }
-        .next-btn:hover, .next-btn:focus {
-            background: #0055ff;
-            outline: none;
-        }
 
-        /* Branding-Stile für das Logo von der Visitenkarte */
+        /* Branding-Stile für das Logo */
         .brand-logo {
             font-size: 42px;
             font-weight: bold;
@@ -115,7 +99,7 @@
             margin-bottom: 5px;
         }
 
-        /* Folgeschritte sind initial unsichtbar und werden nacheinander angehängt */
+        /* Versteckte Schritte */
         .hidden-step {
             display: none !important;
         }
@@ -129,58 +113,48 @@
             <span>v1.0.0</span>
         </div>
         
-        <!-- VISUELLES TERMINAL INTERFACE -->
-        <div class="editor-content-body" id="terminal-scroll-area">
+        <!-- NATIVES FORMULAR-MANAGEMENT FÜR DIE ENTER-TASTE -->
+        <form class="editor-content-body" id="terminal-scroll-area" onsubmit="handleTerminalSubmit(event);">
             
-            <!-- DIREKTER START: LOGO & PASSWORT-ABFRAGE COMBINED -->
+            <!-- SCHRITT 1: BRANDING & PASSWORT-ABFRAGE -->
             <div id="step-passwort" class="terminal-block">
                 <div class="brand-logo">shift</div>
                 <div class="brand-sub">raum // subjekt // dialog</div>
-                <div>Bitte gib das System-Passwort ein, um fortzufahren.</div>
+                <div>Bitte gib das System-Passwort ein und drücke [ENTER].</div>
                 <div class="prompt-form" id="form-passwort">
                     <span class="prompt-user">passwort:~$</span>
-                    <input type="password" id="pw-input" class="terminal-input" autofocus autocomplete="off" placeholder="Passwort eingeben..." onkeypress="if(event.key === 'Enter') { event.preventDefault(); checkPassword(); }">
-                    <button type="button" class="next-btn" onclick="checkPassword()">[ENTER]</button>
+                    <input type="text" id="pw-input" class="terminal-input" autofocus autocomplete="off" placeholder="Passwort...">
                 </div>
             </div>
 
             <!-- SCHRITT 2: E-MAIL ALS LOG -->
             <div id="step-email" class="terminal-block hidden-step">
                 <div style="margin-top: 20px; border-top: 1px dashed #cccccc; padding-top: 20px;"></div>
-                <div>Zugriff gewährt.<br><br>[System-Log]: Bitte E-Mail-Adresse für die Registrierung des Sitzungs-Protokolls angeben.</div>
+                <div>Zugriff gewährt.<br><br>[System-Log]: Bitte E-Mail-Adresse für die Registrierung des Sitzungs-Protokolls angeben und [ENTER] drücken.</div>
                 <div class="prompt-form" id="form-email">
                     <span class="prompt-user">email_log:~$</span>
-                    <input type="email" id="email-input" class="terminal-input" autocomplete="off" placeholder="E-Mail-Adresse..." onkeypress="if(event.key === 'Enter') { event.preventDefault(); goToMessage(); }">
-                    <button type="button" class="next-btn" onclick="goToMessage()">[ENTER]</button>
+                    <input type="email" id="email-input" class="terminal-input" autocomplete="off" placeholder="E-Mail-Adresse...">
                 </div>
             </div>
 
             <!-- SCHRITT 3: NACHRICHT -->
             <div id="step-nachricht" class="terminal-block hidden-step">
                 <div style="margin-top: 20px; border-top: 1px dashed #cccccc; padding-top: 20px;"></div>
-                <div>Sitzungs-Log erstellt.<br><br>Du kannst nun unten deine Nachricht eingeben. Drücke auf [SENDEN], um das Terminal zu übertragen.</div>
+                <div>Sitzungs-Log erstellt.<br><br>Du kannst nun unten deine Nachricht eingeben. Drücke [ENTER], um das Terminal zu übertragen.</div>
                 <div class="prompt-form" id="form-nachricht">
                     <span class="prompt-user">nachricht:~$</span>
-                    <input type="text" id="msg-input" class="terminal-input" autocomplete="off" placeholder="Deine Nachricht..." onkeypress="if(event.key === 'Enter') { event.preventDefault(); submitToNetlify(); }">
-                    <button type="button" class="next-btn" onclick="submitToNetlify()">[SENDEN]</button>
+                    <input type="text" id="msg-input" class="terminal-input" autocomplete="off" placeholder="Deine Nachricht...">
                 </div>
             </div>
 
-            <!-- SCHRITT 4: ERFOLGSMELDUNG -->
-            <div id="step-success" class="terminal-block hidden-step">
+            <!-- SCHRITT 4: ERFOLGSMELDUNG & PORTFOLIO -->
+            <div id="step-portfolio" class="terminal-block hidden-step">
                 <div style="margin-top: 20px; border-top: 1px dashed #cccccc; padding-top: 20px;"></div>
                 <div style="color: #00aa00; font-weight: bold;">--- PROTOKOLL ERFOLGREICH ÜBERMITTELT ---</div>
                 <br>
-                <div>Deine Logdaten und die Nachricht wurden fehlerfrei im System verarbeitet.<br><br>Sitzung wird autorisiert...</div>
-                <div class="prompt-form" id="form-success">
-                    <span class="prompt-user">system:~$</span>
-                    <button type="button" class="next-btn" onclick="showPortfolio()">[PORTFOLIO ÖFFNEN]</button>
-                </div>
-            </div>
-
-            <!-- SCHRITT 5: PORTFOLIO -->
-            <div id="step-portfolio" class="terminal-block hidden-step">
-                <div style="margin-top: 20px; border-top: 2px solid #000000; padding-top: 20px;"></div>
+                <div>Deine Logdaten und die Nachricht wurden fehlerfrei verarbeitet.</div>
+                
+                <div style="margin-top: 30px; border-top: 2px solid #000000; padding-top: 20px;"></div>
                 <div class="brand-logo" style="font-size: 24px;">shift // portfolio</div>
                 
                 <div class="portfolio-container">
@@ -190,20 +164,20 @@
                     </div>
                     <div class="portfolio-item">
                         <div class="portfolio-title">Projekt_02: Subjektstudien</div>
-                        <div>Interaktive Installationen, die den Betrachter direkt in das Kunstwerk einbinden.</div>
+                    <div>Interaktive Installationen, die den Betrachter direkt in das Kunstwerk einbinden.</div>
                     </div>
                     <div class="portfolio-item">
                         <div class="portfolio-title">Projekt_03: Dialoge des Schweigens</div>
                         <div>Konzeptionelle Arbeiten über Kommunikation im analogen und digitalen Zeitalter.</div>
                     </div>
                 </div>
-                <div class="prompt-form">
-                    <span class="prompt-user">portfolio:~$</span>
-                    <button type="button" class="next-btn" onclick="window.location.reload();">[LOGOUT / NEUSTART]</button>
-                </div>
+                
+                <div style="margin-top: 20px; color: #555555; font-size: 14px;">Drücke [ENTER] für einen Neustart des Systems.</div>
             </div>
 
-        </div>
+            <!-- UNSICHTBARER SUBMIT-TRIGGER FÜR DEN BROWSER -->
+            <button type="submit" style="display: none;"></button>
+        </form>
 
         <!-- REALE NETLIFY-SCHNITTSTELLE -->
         <form name="terminal-contact" data-netlify="true" style="display: none;">
@@ -214,29 +188,55 @@
     </div>
 
     <script>
-        // Standardpasswort für die Abfrage
         const CONFIG_PASSWORD = "geheim123";
+        let currentStep = 1; // 1 = Passwort, 2 = E-Mail, 3 = Nachricht, 4 = Portfolio/Reset
 
         function scrollToBottom() {
             var area = document.getElementById('terminal-scroll-area');
-            if (area) {
-                area.scrollTop = area.scrollHeight;
-            }
+            if (area) area.scrollTop = area.scrollHeight;
         }
 
-        function checkPassword() {
-            var pwInput = document.getElementById('pw-input');
-            if (!pwInput) return;
+        function handleTerminalSubmit(event) {
+            event.preventDefault(); // Verhindert das Neuladen der Seite bei Enter
+
+            if (currentStep === 1) {
+                var pwInput = document.getElementById('pw-input');
+                if (pwInput && pwInput.value.trim() === CONFIG_PASSWORD) {
+                    document.getElementById('form-passwort').style.display = "none";
+                    document.getElementById('step-email').classList.remove('hidden-step');
+                    currentStep = 2;
+                    scrollToBottom();
+                    setTimeout(function() { document.getElementById('email-input').focus(); }, 50);
+                } else {
+                    alert("Falsches Passwort!");
+                    if(pwInput) {
+                        pwInput.value = "";
+                        pwInput.focus();
+                    }
+                }
+            } 
             
-            if (pwInput.value.trim() === CONFIG_PASSWORD) {
-                var formPasswort = document.getElementById('form-passwort');
-                var stepEmail = document.getElementById('step-email');
-                
-                if (formPasswort) formPasswort.style.display = "none";
-                if (stepEmail) stepEmail.classList.remove('hidden-step');
-                
-                scrollToBottom();
-                setTimeout(function() { 
-                    var input = document.getElementById('email-input');
-                    if(input) input.focus(); 
-                }, 50);
+            else if (currentStep === 2) {
+                var emailInput = document.getElementById('email-input');
+                if (emailInput && emailInput.value.includes('@')) {
+                    document.getElementById('form-email').style.display = "none";
+                    document.getElementById('step-nachricht').classList.remove('hidden-step');
+                    currentStep = 3;
+                    scrollToBottom();
+                    setTimeout(function() { document.getElementById('msg-input').focus(); }, 50);
+                } else {
+                    alert("Bitte gib eine gültige E-Mail-Adresse ein.");
+                    if(emailInput) emailInput.focus();
+                }
+            } 
+            
+            else if (currentStep === 3) {
+                var msgInput = document.getElementById('msg-input');
+                var emailInput = document.getElementById('email-input');
+                if (!msgInput || !emailInput || !msgInput.value.trim()) return;
+
+                document.getElementById('form-nachricht').style.display = "none";
+                msgInput.disabled = true;
+
+                var params = new URLSearchParams();
+                params.append("form-name", "terminal-contact");
