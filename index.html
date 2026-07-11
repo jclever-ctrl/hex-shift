@@ -41,6 +41,9 @@
             color: #000000; 
             white-space: pre-wrap; 
         }
+        .terminal-block {
+            margin-bottom: 25px;
+        }
         .prompt-form { 
             display: flex; 
             align-items: center; 
@@ -110,7 +113,7 @@
             margin-bottom: 5px;
         }
 
-        /* Ausblend-Steuerung (Schritt 0 bleibt standardmäßig sichtbar) */
+        /* Alle folgenden Schritte sind initial unsichtbar */
         #step-passwort, #step-email, #step-nachricht, #step-success, #step-portfolio {
             display: none;
         }
@@ -125,25 +128,24 @@
         </div>
         
         <!-- VISUELLES TERMINAL INTERFACE -->
-        <div id="terminal-screen" style="flex: 1; display: flex; flex-direction: column;">
+        <div class="editor-content-body" id="terminal-scroll-area">
             
             <!-- SCHRITT 0: BRANDING-STARTSEITE -->
-            <div id="step-branding" style="flex: 1; display: flex; flex-direction: column;">
-                <div class="editor-content-body">
-                    <div class="brand-logo">shift</div>
-                    <div class="brand-sub">raum // subjekt // dialog</div>
-                    <span>[System im Standby-Modus. Bitte Authentifizierung starten.]</span>
-                </div>
-                <div class="prompt-form">
+            <div id="step-branding" class="terminal-block">
+                <div class="brand-logo">shift</div>
+                <div class="brand-sub">raum // subjekt // dialog</div>
+                <div>[System im Standby-Modus. Bitte Authentifizierung starten.]</div>
+                <div class="prompt-form" id="form-branding">
                     <span class="prompt-user">system:~$</span>
-                    <button type="button" id="start-btn" class="next-btn" onclick="startSystem()" autofocus>[VERBINDEN]</button>
+                    <button type="button" class="next-btn" onclick="startSystem()" autofocus>[VERBINDEN]</button>
                 </div>
             </div>
 
             <!-- SCHRITT 1: PASSWORT -->
-            <div id="step-passwort" style="flex: 1; display: flex; flex-direction: column;">
-                <div class="editor-content-body">Bitte gib das System-Passwort ein, um fortzufahren.</div>
-                <div class="prompt-form">
+            <div id="step-passwort" class="terminal-block">
+                <div style="margin-top: 20px; border-top: 1px dashed #cccccc; padding-top: 20px;"></div>
+                <div>Bitte gib das System-Passwort ein, um fortzufahren.</div>
+                <div class="prompt-form" id="form-passwort">
                     <span class="prompt-user">passwort:~$</span>
                     <input type="password" id="pw-input" class="terminal-input" autocomplete="off" placeholder="Passwort eingeben...">
                     <button type="button" class="next-btn" onclick="checkPassword()">[ENTER]</button>
@@ -151,9 +153,10 @@
             </div>
 
             <!-- SCHRITT 2: E-MAIL ALS LOG -->
-            <div id="step-email" style="flex: 1; display: flex; flex-direction: column;">
-                <div class="editor-content-body">Zugriff gewährt.<br><br>[System-Log]: Bitte E-Mail-Adresse für die Registrierung des Sitzungs-Protokolls angeben.</div>
-                <div class="prompt-form">
+            <div id="step-email" class="terminal-block">
+                <div style="margin-top: 20px; border-top: 1px dashed #cccccc; padding-top: 20px;"></div>
+                <div>Zugriff gewährt.<br><br>[System-Log]: Bitte E-Mail-Adresse für die Registrierung des Sitzungs-Protokolls angeben.</div>
+                <div class="prompt-form" id="form-email">
                     <span class="prompt-user">email_log:~$</span>
                     <input type="email" id="email-input" class="terminal-input" autocomplete="off" placeholder="E-Mail-Adresse...">
                     <button type="button" class="next-btn" onclick="goToMessage()">[ENTER]</button>
@@ -161,9 +164,10 @@
             </div>
 
             <!-- SCHRITT 3: NACHRICHT -->
-            <div id="step-nachricht" style="flex: 1; display: flex; flex-direction: column;">
-                <div class="editor-content-body">Sitzungs-Log erstellt.<br><br>Du kannst nun unten deine Nachricht eingeben. Drücke auf [SENDEN], um das Terminal zu übertragen.</div>
-                <div class="prompt-form">
+            <div id="step-nachricht" class="terminal-block">
+                <div style="margin-top: 20px; border-top: 1px dashed #cccccc; padding-top: 20px;"></div>
+                <div>Sitzungs-Log erstellt.<br><br>Du kannst nun unten deine Nachricht eingeben. Drücke auf [SENDEN], um das Terminal zu übertragen.</div>
+                <div class="prompt-form" id="form-nachricht">
                     <span class="prompt-user">nachricht:~$</span>
                     <input type="text" id="msg-input" class="terminal-input" autocomplete="off" placeholder="Deine Nachricht...">
                     <button type="button" class="next-btn" onclick="submitToNetlify()">[SENDEN]</button>
@@ -171,33 +175,34 @@
             </div>
 
             <!-- SCHRITT 4: ERFOLGSMELDUNG -->
-            <div id="step-success" style="flex: 1; display: flex; flex-direction: column;">
-                <div class="editor-content-body">--- PROTOKOLL ERFOLGREICH ÜBERMITTELT ---<br><br>Deine Logdaten und die Nachricht wurden fehlerfrei im System verarbeitet.<br><br>Sitzung wird autorisiert...</div>
-                <div class="prompt-form">
+            <div id="step-success" class="terminal-block">
+                <div style="margin-top: 20px; border-top: 1px dashed #cccccc; padding-top: 20px;"></div>
+                <div style="color: #00aa00; font-weight: bold;">--- PROTOKOLL ERFOLGREICH ÜBERMITTELT ---</div>
+                <br>
+                <div>Deine Logdaten und die Nachricht wurden fehlerfrei im System verarbeitet.<br><br>Sitzung wird autorisiert...</div>
+                <div class="prompt-form" id="form-success">
                     <span class="prompt-user">system:~$</span>
-                    <button type="button" id="portfolio-btn" class="next-btn" onclick="showPortfolio()">[PORTFOLIO ÖFFNEN]</button>
+                    <button type="button" class="next-btn" onclick="showPortfolio()">[PORTFOLIO ÖFFNEN]</button>
                 </div>
             </div>
 
             <!-- SCHRITT 5: PORTFOLIO -->
-            <div id="step-portfolio" style="flex: 1; display: flex; flex-direction: column;">
-                <div class="editor-content-body">
-                    <div class="brand-logo" style="font-size: 24px;">shift // portfolio</div>
-                    <div style="border-bottom: 1px dashed #000000; margin-bottom: 20px;"></div>
-                    
-                    <div class="portfolio-container">
-                        <div class="portfolio-item">
-                            <div class="portfolio-title">Projekt_01: Virtuelle Räume</div>
-                            <div>Eine Untersuchung von digitalen Dialogplattformen und deren subjektiver Wahrnehmung.</div>
-                        </div>
-                        <div class="portfolio-item">
-                            <div class="portfolio-title">Projekt_02: Subjektstudien</div>
-                            <div>Interaktive Installationen, die den Betrachter direkt in das Kunstwerk einbinden.</div>
-                        </div>
-                        <div class="portfolio-item">
-                            <div class="portfolio-title">Projekt_03: Dialoge des Schweigens</div>
-                            <div>Konzeptionelle Arbeiten über Kommunikation im analogen und digitalen Zeitalter.</div>
-                        </div>
+            <div id="step-portfolio" class="terminal-block">
+                <div style="margin-top: 20px; border-top: 2px solid #000000; padding-top: 20px;"></div>
+                <div class="brand-logo" style="font-size: 24px;">shift // portfolio</div>
+                
+                <div class="portfolio-container">
+                    <div class="portfolio-item">
+                        <div class="portfolio-title">Projekt_01: Virtuelle Räume</div>
+                        <div>Eine Untersuchung von digitalen Dialogplattformen und deren subjektiver Wahrnehmung.</div>
+                    </div>
+                    <div class="portfolio-item">
+                        <div class="portfolio-title">Projekt_02: Subjektstudien</div>
+                        <div>Interaktive Installationen, die den Betrachter direkt in das Kunstwerk einbinden.</div>
+                    </div>
+                    <div class="portfolio-item">
+                        <div class="portfolio-title">Projekt_03: Dialoge des Schweigens</div>
+                        <div>Konzeptionelle Arbeiten über Kommunikation im analogen und digitalen Zeitalter.</div>
                     </div>
                 </div>
                 <div class="prompt-form">
@@ -219,22 +224,20 @@
     <script>
         const CONFIG_PASSWORD = "geheim123";
 
-        const p0 = document.getElementById('step-branding');
+        const scrollArea = document.getElementById('terminal-scroll-area');
+
+        // Phasen-Blöcke
         const p1 = document.getElementById('step-passwort');
         const p2 = document.getElementById('step-email');
         const p3 = document.getElementById('step-nachricht');
         const p4 = document.getElementById('step-success');
         const p5 = document.getElementById('step-portfolio');
 
+        // Eingabefelder
         const pwInput = document.getElementById('pw-input');
         const emailInput = document.getElementById('email-input');
         const msgInput = document.getElementById('msg-input');
-        const portfolioBtn = document.getElementById('portfolio-btn');
 
-        function startSystem() {
-            p0.style.display = "none";
-            p1.style.display = "flex";
-            setTimeout(() => { pwInput.focus(); }, 50);
-        }
-
-        function checkPassword() {
+        // Formular-Zeilen zum Deaktivieren nach der Eingabe
+        const f0 = document.getElementById('form-branding');
+        const f1 = document.getElementById('form-passwort');
