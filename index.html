@@ -75,9 +75,42 @@
             margin-left: 10px;
             font-size: 14px;
         }
+        .next-btn:hover {
+            background: #0055ff;
+        }
 
-        /* Standardmäßig versteckte Schritte */
-        #step-email, #step-nachricht, #step-success {
+        /* Branding-Stile für das Logo */
+        .brand-logo {
+            font-size: 42px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+        .brand-sub {
+            font-size: 18px;
+            letter-spacing: 1px;
+            color: #555555;
+            margin-bottom: 30px;
+        }
+
+        /* Portfolio Grid-Layout */
+        .portfolio-container {
+            margin-top: 20px;
+        }
+        .portfolio-item {
+            border: 1px solid #000000;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .portfolio-title {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        /* Schritte-Steuerung */
+        #step-passwort, #step-email, #step-nachricht, #step-success, #step-portfolio {
             display: none;
         }
     </style>
@@ -92,12 +125,26 @@
         
         <!-- VISUELLES TERMINAL INTERFACE -->
         <div id="terminal-screen">
-            <!-- SCHRITT 1: PASSWORT (Klartext) -->
+            
+            <!-- SCHRITT 0: BRANDING-STARTSEITE (Visitenkarten-Vorderseite) -->
+            <div id="step-branding">
+                <div class="editor-content-body">
+                    <div class="brand-logo">shift</div>
+                    <div class="brand-sub">raum // subjekt // dialog</div>
+                    <span>[System im Standby-Modus. Bitte Authentifizierung starten.]</span>
+                </div>
+                <div class="prompt-form">
+                    <span class="prompt-user">system:~$</span>
+                    <button type="button" class="next-btn" onclick="startSystem()">[VERBINDEN]</button>
+                </div>
+            </div>
+
+            <!-- SCHRITT 1: PASSWORT -->
             <div id="step-passwort">
-                <div class="editor-content-body">Bitte gib das System-Passwort ein, um fortzufahren.<br>(Passwort: HEX-2635)</div>
+                <div class="editor-content-body">Bitte gib das System-Passwort ein, um fortzufahren.</div>
                 <div class="prompt-form">
                     <span class="prompt-user">passwort:~$</span>
-                    <input type="text" id="pw-input" class="terminal-input" autofocus autocomplete="off">
+                    <input type="password" id="pw-input" class="terminal-input" autocomplete="off" placeholder="Passwort eingeben...">
                     <button type="button" class="next-btn" onclick="checkPassword()">[ENTER]</button>
                 </div>
             </div>
@@ -107,7 +154,7 @@
                 <div class="editor-content-body">Zugriff gewährt.<br><br>[System-Log]: Bitte E-Mail-Adresse für die Registrierung des Sitzungs-Protokolls angeben.</div>
                 <div class="prompt-form">
                     <span class="prompt-user">email_log:~$</span>
-                    <input type="email" id="email-input" class="terminal-input" autocomplete="off">
+                    <input type="email" id="email-input" class="terminal-input" autocomplete="off" placeholder="E-Mail-Adresse...">
                     <button type="button" class="next-btn" onclick="goToMessage()">[ENTER]</button>
                 </div>
             </div>
@@ -117,22 +164,55 @@
                 <div class="editor-content-body">Sitzungs-Log erstellt.<br><br>Du kannst nun unten deine Nachricht eingeben. Drücke auf [SENDEN], um das Terminal zu übertragen.</div>
                 <div class="prompt-form">
                     <span class="prompt-user">nachricht:~$</span>
-                    <input type="text" id="msg-input" class="terminal-input" autocomplete="off">
+                    <input type="text" id="msg-input" class="terminal-input" autocomplete="off" placeholder="Deine Nachricht...">
                     <button type="button" class="next-btn" onclick="submitToNetlify()">[SENDEN]</button>
                 </div>
             </div>
 
-            <!-- SCHRITT 4: ERFOLGSMELDUNG (Bleibt auf der gleichen Seite, kein 404 möglich!) -->
+            <!-- SCHRITT 4: ERFOLGSMELDUNG (Zwischenschritt) -->
             <div id="step-success">
-                <div class="editor-content-body">--- PROTOKOLL ERFOLGREICH ÜBERMITTELT ---<br><br>Deine Logdaten und die Nachricht wurden fehlerfrei im System verarbeitet.<br><br>Das Terminal wird zurückgesetzt.</div>
+                <div class="editor-content-body">--- PROTOKOLL ERFOLGREICH ÜBERMITTELT ---<br><br>Deine Logdaten und die Nachricht wurden fehlerfrei im System verarbeitet.<br><br>Sitzung wird autorisiert...</div>
                 <div class="prompt-form">
                     <span class="prompt-user">system:~$</span>
-                    <button type="button" class="next-btn" onclick="window.location.reload();">[NEUSTART]</button>
+                    <button type="button" class="next-btn" onclick="showPortfolio()">[PORTFOLIO ÖFFNEN]</button>
                 </div>
             </div>
+
+            <!-- SCHRITT 5: PORTFOLIO (Wird nach Absenden sichtbar) -->
+            <div id="step-portfolio">
+                <div class="editor-content-body">
+                    <div class="brand-logo" style="font-size: 24px;">shift // portfolio</div>
+                    <div style="border-bottom: 1px dashed #000000; margin-bottom: 20px;"></div>
+                    
+                    <div class="portfolio-container">
+                        <!-- Projekt 1 -->
+                        <div class="portfolio-item">
+                            <div class="portfolio-title">Projekt_01: Virtuelle Räume</div>
+                            <div>Eine Untersuchung von digitalen Dialogplattformen und deren subjektiver Wahrnehmung.</div>
+                        </div>
+
+                        <!-- Projekt 2 -->
+                        <div class="portfolio-item">
+                            <div class="portfolio-title">Projekt_02: Subjektstudien</div>
+                            <div>Interaktive Installationen, die den Betrachter direkt in das Kunstwerk einbinden.</div>
+                        </div>
+
+                        <!-- Projekt 3 -->
+                        <div class="portfolio-item">
+                            <div class="portfolio-title">Projekt_03: Dialoge des Schweigens</div>
+                            <div>Konzeptionelle Arbeiten über Kommunikation im analogen und digitalen Zeitalter.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="prompt-form">
+                    <span class="prompt-user">portfolio:~$</span>
+                    <button type="button" class="next-btn" onclick="window.location.reload();">[LOGOUT / NEUSTART]</button>
+                </div>
+            </div>
+
         </div>
 
-        <!-- REALE NETLIFY-SCHNITTSTELLE (Wichtig für den Netlify-Bot beim Deployment) -->
+        <!-- REALE NETLIFY-SCHNITTSTELLE -->
         <form name="terminal-contact" data-netlify="true" style="display: none;">
             <input type="hidden" name="form-name" value="terminal-contact">
             <input type="email" name="email_log">
@@ -143,14 +223,22 @@
     <script>
         const CONFIG_PASSWORD = "geheim123";
 
+        const p0 = document.getElementById('step-branding');
         const p1 = document.getElementById('step-passwort');
         const p2 = document.getElementById('step-email');
         const p3 = document.getElementById('step-nachricht');
         const p4 = document.getElementById('step-success');
+        const p5 = document.getElementById('step-portfolio');
 
         const pwInput = document.getElementById('pw-input');
         const emailInput = document.getElementById('email-input');
         const msgInput = document.getElementById('msg-input');
+
+        function startSystem() {
+            p0.style.display = "none";
+            p1.style.display = "block";
+            pwInput.focus();
+        }
 
         function checkPassword() {
             if (pwInput.value.trim() === CONFIG_PASSWORD) {
@@ -166,51 +254,4 @@
 
         function goToMessage() {
             if (emailInput.value.includes('@')) {
-                p2.style.display = "none";
-                p3.style.display = "block";
-                msgInput.focus();
-            } else {
-                alert("Bitte gib eine gültige E-Mail-Adresse ein.");
-                emailInput.focus();
-            }
-        }
 
-        // Sendet die Daten absolut fehlerfrei im Hintergrund, ohne die Seite jemals neu zu laden
-        function submitToNetlify() {
-            const messageText = msgInput.value.trim();
-            if (!messageText) return;
-
-            // Button sperren gegen Mehrfachklicks
-            msgInput.disabled = true;
-
-            // Reine URL-Codierung, die von Netlifys Firewall garantiert akzeptiert wird
-            const params = new URLSearchParams();
-            params.append("form-name", "terminal-contact");
-            params.append("email_log", emailInput.value.trim());
-            params.append("nachricht_text", messageText);
-
-            fetch("/", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: params.toString()
-            })
-            .then(response => {
-                // Unabhängig vom Server-Routing schalten wir sofort auf Erfolg um
-                p3.style.display = "none";
-                p4.style.display = "block";
-            })
-            .catch(error => {
-                // Fallback, falls das Netzwerk komplett wegbricht
-                p3.style.display = "none";
-                p4.style.display = "block";
-            });
-        }
-
-        // Enter-Tasten-Events für Terminal-Feeling
-        pwInput.addEventListener('keypress', function(e) { if (e.key === 'Enter') checkPassword(); });
-        emailInput.addEventListener('keypress', function(e) { if (e.key === 'Enter') goToMessage(); });
-        msgInput.addEventListener('keypress', function(e) { if (e.key === 'Enter') submitToNetlify(); });
-    </script>
-
-</body>
-</html>
