@@ -77,47 +77,34 @@
             font-size: 14px;
         }
 
-        /* --- REINE CSS LOGIK FÜR SEITENWECHSEL --- */
+        /* --- SEITENWECHSEL LOGIK VIA CSS --- */
         .page-toggle {
             display: none;
         }
 
-        /* Standardmäßig sind Schritt 2, Schritt 3 und Erfolg unsichtbar */
         #step-email, #step-nachricht, #step-success {
             display: none;
         }
 
-        /* Schalter 1 aktiviert: Zeige E-Mail, verstecke Passwort */
+        /* Umschaltung der CSS-Zustände */
         #toggle-step2:checked ~ .fullscreen-terminal #step-passwort { display: none; }
         #toggle-step2:checked ~ .fullscreen-terminal #step-email { display: block; }
 
-        /* Schalter 2 aktiviert: Zeige Nachricht, verstecke E-Mail */
         #toggle-step3:checked ~ .fullscreen-terminal #step-email { display: none; }
         #toggle-step3:checked ~ .fullscreen-terminal #step-nachricht { display: block; }
 
-        /* CSS-Umschaltung für die Erfolgsmeldung nach Netlify-Redirect */
         #toggle-success:checked ~ .fullscreen-terminal #step-passwort { display: none; }
         #toggle-success:checked ~ .fullscreen-terminal #step-success { display: block; }
     </style>
 </head>
 <body>
 
-    <!-- CSS Steuerungselemente -->
     <input type="checkbox" id="toggle-step2" class="page-toggle">
     <input type="checkbox" id="toggle-step3" class="page-toggle">
-    
-    <!-- Dieser versteckte Radio-Button simuliert die erfolgreiche Rückkehr von Netlify Forms -->
     <input type="radio" id="toggle-success" class="page-toggle">
 
-    <!-- CSS-Trick: Wenn in der URL "?success" steht, aktivieren wir die Erfolgsseite -->
-    <style>
-        @media id { }
-        /* Falls die URL Parameter enthält (nach dem Senden), schalten wir per CSS um */
-        html:has(textarea) { /* Fallback-Sicherheit */ }
-    </style>
-    
     <script>
-        // Kleiner nativer Helfer NUR für die Netlify-Rückleitung: Wenn wir von Netlify zurückkommen, aktivieren wir die Erfolgsansicht.
+        // Löst das "Page not found" Problem auf Netlify bei URL-Wechseln sauber auf
         if (window.location.search.includes('success=true')) {
             document.getElementById('toggle-success').checked = true;
         }
@@ -131,51 +118,49 @@
         
         <!-- ================= SCHRITT 1: PASSWORT ================= -->
         <div id="step-passwort">
-            <div class="editor-content-body">Bitte gib das System-Passwort ein, um fortzufahren.<br>(Passwort im Quellcode: geheim123)</div>
+            <div class="editor-content-body">Bitte gib das System-Passwort ein, um fortzufahren.<br>(Passwort: geheim123)</div>
             <div class="prompt-form">
-                <span class="prompt-user">* * *:~$</span>
-                <!-- Ein normales Passwort-Feld erzeugt die Punkte/Sternchen nativ -->
-                <input type="password" class="terminal-input" autofocus autocomplete="off">
+                <span class="prompt-user">passwort:~$</span>
+                <!-- type="text" statt "password" entfernt die Maskierung/Sterne vollständig -->
+                <input type="text" class="terminal-input" autofocus autocomplete="off">
                 <label for="toggle-step2" class="next-btn">[ENTER]</label>
             </div>
         </div>
 
         <!-- ================= NETLIFY FORMULAR (SCHRITT 2 & 3) ================= -->
-        <!-- POST-Methode an die eigene Seite schickt die Daten fehlerfrei an Netlify Forms -->
-        <form name="terminal-messages" method="POST" data-netlify="true" action="/?success=true">
+        <!-- Action zeigt direkt auf index.html, um Netlifys Routing-Fehler auszuschließen -->
+        <form name="terminal-log-system" method="POST" data-netlify="true" action="/index.html?success=true">
             
-            <!-- Netlify Bot-Schutz (Pflicht für saubere Verarbeitung) -->
-            <input type="hidden" name="form-name" value="terminal-messages">
-            <p style="display:none;"><label>Bot-Field: <input name="bot-field"></label></p>
+            <input type="hidden" name="form-name" value="terminal-log-system">
+            <p style="display:none;"><label><input name="bot-field"></label></p>
 
-            <!-- ================= SCHRITT 2: E-MAIL ================= -->
+            <!-- ================= SCHRITT 2: E-MAIL ALS LOG ================= -->
             <div id="step-email">
-                <div class="editor-content-body">Zugriff gewährt.<br><br>Bitte gib deine E-Mail-Adresse an, damit wir dich kontaktieren können.</div>
+                <div class="editor-content-body">Zugriff gewährt.<br><br>[System-Log]: Bitte E-Mail-Adresse für die Registrierung des Sitzungs-Protokolls angeben.</div>
                 <div class="prompt-form">
-                    <span class="prompt-user">e-mail:~$</span>
-                    <input type="email" name="absender_email" class="terminal-input" autocomplete="off" required>
+                    <span class="prompt-user">email_log:~$</span>
+                    <input type="email" name="email_log" class="terminal-input" autocomplete="off" required>
                     <label for="toggle-step3" class="next-btn">[ENTER]</label>
                 </div>
             </div>
 
             <!-- ================= SCHRITT 3: NACHRICHT ================= -->
             <div id="step-nachricht">
-                <div class="editor-content-body">E-Mail verarbeitet.<br><br>Du kannst nun unten deine Nachricht eingeben. Drücke auf [SENDEN], um das Terminal zu übertragen.</div>
+                <div class="editor-content-body">Sitzungs-Log erstellt.<br><br>Du kannst nun unten deine Nachricht eingeben. Drücke auf [SENDEN], um das Terminal zu übertragen.</div>
                 <div class="prompt-form">
                     <span class="prompt-user">nachricht:~$</span>
                     <input type="text" name="nachricht_text" class="terminal-input" autocomplete="off" required>
-                    <!-- Echter HTML-Submit-Button schickt die Formulardaten ohne JavaScript-Fehler ab -->
                     <button type="submit" class="next-btn">[SENDEN]</button>
                 </div>
             </div>
         </form>
 
-        <!-- ================= ERFOLGSMELDUNG (NACH DEM SENDEN) ================= -->
+        <!-- ================= ERFOLGSMELDUNG ================= -->
         <div id="step-success">
-            <div class="editor-content-body">--- SYSTEM-NACHRICHT ERFOLGREICH ÜBERMITTELT ---\n\nDeine Nachricht wurde sicher auf den Netlify-Servern hinterlegt.<br><br>Das Terminal wird zurückgesetzt.</div>
+            <div class="editor-content-body">--- PROTOKOLL ERFOLGREICH ÜBERMITTELT ---\n\nDeine Logdaten und die Nachricht wurden fehlerfrei verarbeitet.<br><br>Das Terminal wird zurückgesetzt.</div>
             <div class="prompt-form">
                 <span class="prompt-user">system:~$</span>
-                <a href="/" class="next-btn">[NEUSTART]</a>
+                <a href="/index.html" class="next-btn">[NEUSTART]</a>
             </div>
         </div>
 
