@@ -85,7 +85,7 @@
             outline: none;
         }
 
-        /* Branding-Stile für das Logo */
+        /* Branding-Stile für das Logo von der Visitenkarte */
         .brand-logo {
             font-size: 42px;
             font-weight: bold;
@@ -115,7 +115,7 @@
             margin-bottom: 5px;
         }
 
-        /* Ausblendung für Folgeschritte per CSS-Klasse geregelt */
+        /* Folgeschritte sind initial unsichtbar und werden nacheinander angehängt */
         .hidden-step {
             display: none !important;
         }
@@ -132,24 +132,14 @@
         <!-- VISUELLES TERMINAL INTERFACE -->
         <div class="editor-content-body" id="terminal-scroll-area">
             
-            <!-- SCHRITT 0: BRANDING-STARTSEITE -->
-            <div id="step-branding" class="terminal-block">
+            <!-- DIREKTER START: LOGO & PASSWORT-ABFRAGE COMBINED -->
+            <div id="step-passwort" class="terminal-block">
                 <div class="brand-logo">shift</div>
                 <div class="brand-sub">raum // subjekt // dialog</div>
-                <div>[System im Standby-Modus. Bitte Authentifizierung starten.]</div>
-                <div class="prompt-form" id="form-branding">
-                    <span class="prompt-user">system:~$</span>
-                    <button type="button" class="next-btn" onclick="startSystem()">[VERBINDEN]</button>
-                </div>
-            </div>
-
-            <!-- SCHRITT 1: PASSWORT -->
-            <div id="step-passwort" class="terminal-block hidden-step">
-                <div style="margin-top: 20px; border-top: 1px dashed #cccccc; padding-top: 20px;"></div>
                 <div>Bitte gib das System-Passwort ein, um fortzufahren.</div>
                 <div class="prompt-form" id="form-passwort">
                     <span class="prompt-user">passwort:~$</span>
-                    <input type="password" id="pw-input" class="terminal-input" autocomplete="off" placeholder="Passwort eingeben..." onkeypress="if(event.key === 'Enter') { event.preventDefault(); checkPassword(); }">
+                    <input type="password" id="pw-input" class="terminal-input" autofocus autocomplete="off" placeholder="Passwort eingeben..." onkeypress="if(event.key === 'Enter') { event.preventDefault(); checkPassword(); }">
                     <button type="button" class="next-btn" onclick="checkPassword()">[ENTER]</button>
                 </div>
             </div>
@@ -234,8 +224,19 @@
             }
         }
 
-        function startSystem() {
-            var formBranding = document.getElementById('form-branding');
-            var stepPasswort = document.getElementById('step-passwort');
+        function checkPassword() {
+            var pwInput = document.getElementById('pw-input');
+            if (!pwInput) return;
             
-            if (formBranding) formBranding.style.display = "none";
+            if (pwInput.value.trim() === CONFIG_PASSWORD) {
+                var formPasswort = document.getElementById('form-passwort');
+                var stepEmail = document.getElementById('step-email');
+                
+                if (formPasswort) formPasswort.style.display = "none";
+                if (stepEmail) stepEmail.classList.remove('hidden-step');
+                
+                scrollToBottom();
+                setTimeout(function() { 
+                    var input = document.getElementById('email-input');
+                    if(input) input.focus(); 
+                }, 50);
